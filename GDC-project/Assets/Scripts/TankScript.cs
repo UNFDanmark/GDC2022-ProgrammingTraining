@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +7,11 @@ public class TankScript : MonoBehaviour
 {
     public float speed = 1f;
     public float turnSpeed = 1f;
+    public float jumpForce = 1f;
     public GameObject bullet;
     public GameObject model;
+    public AudioClip canon;
+    public AudioClip pewPistol;
 
     public float CooldownTimer;
 
@@ -15,12 +19,14 @@ public class TankScript : MonoBehaviour
     Rigidbody rb;
     Transform transform;
     Animator modelAnimator;
+    AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
         transform = gameObject.GetComponent<Transform>();
+        audioSource =  gameObject.GetComponent<AudioSource>();
         modelAnimator = model.GetComponent<Animator>();
 
         // Ignorer collison mellem lag 6 (player) og lag 7 (bullet)
@@ -31,7 +37,17 @@ public class TankScript : MonoBehaviour
     void Update()
     {
         Movehandler();
+        JumpHandler();
         ShootHandler();
+    }
+
+    void JumpHandler()
+    {
+        if (Input.GetButtonDown("Jump"))
+        {
+            rb.AddForce(Vector3.up*jumpForce);
+            audioSource.PlayOneShot(pewPistol);
+        }
     }
 
     // skyd når der bliver klikket.
@@ -45,6 +61,7 @@ public class TankScript : MonoBehaviour
             lastShotTime = Time.time;
             Instantiate(bullet, transform.position, transform.rotation);
             modelAnimator.SetTrigger("shoot");
+            audioSource.PlayOneShot(canon);
         }
     }
 
