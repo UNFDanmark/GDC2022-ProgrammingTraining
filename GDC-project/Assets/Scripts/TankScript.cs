@@ -7,19 +7,21 @@ public class TankScript : MonoBehaviour
     public float speed = 1f;
     public float turnSpeed = 1f;
     public GameObject bullet;
+    public GameObject model;
 
     public float CooldownTimer;
 
     float lastShotTime = -99;
     Rigidbody rb;
     Transform transform;
-
+    Animator modelAnimator;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
         transform = gameObject.GetComponent<Transform>();
+        modelAnimator = model.GetComponent<Animator>();
 
         // Ignorer collison mellem lag 6 (player) og lag 7 (bullet)
         Physics.IgnoreLayerCollision(6, 7);
@@ -28,29 +30,22 @@ public class TankScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         Movehandler();
-
         ShootHandler();
     }
 
     // skyd når der bliver klikket.
     void ShootHandler()
     {
-
-        
-
         bool pressedShoot = Input.GetButton("Fire1");
         bool isCooldownDone = lastShotTime + CooldownTimer < Time.time;
         
         if (pressedShoot && isCooldownDone)
         {
             lastShotTime = Time.time;
-            
             Instantiate(bullet, transform.position, transform.rotation);
+            modelAnimator.SetTrigger("shoot");
         }
-
-
     }
 
 
@@ -68,5 +63,16 @@ public class TankScript : MonoBehaviour
 
         //rotér tanken
         transform.Rotate(transform.up * Input.GetAxis("Horizontal"));
+
+        bool isAorDPressed = Input.GetAxis("Horizontal") != 0;
+        bool isWorSPressed = Input.GetAxis("Vertical") != 0;
+
+        if (isAorDPressed || isWorSPressed)
+        {
+            modelAnimator.SetBool("isDriving", true);
+        } else
+        {
+            modelAnimator.SetBool("isDriving", false);
+        }
     }
 }
